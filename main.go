@@ -54,15 +54,12 @@ func main() {
 		log.Fatalf("user table sync failed: %v",err)
 	}
 
-
-
 	user:=app.Party("/user")
 	{
 		user.Get("/{name}", getUser)
 
 		user.Post("/", addUser)
 	}
-
 
 	err=app.Listen(":8081")
 	if err != nil {
@@ -81,15 +78,12 @@ func addUser(ctx iris.Context) {
 
 	ctx.Application().Logger().Infof("User: %#+v",user)
 
-
     _,err=engine.Insert(&user)
-
 
 	if err != nil {
 		ctx.StopWithError(iris.StatusBadRequest,err)
 		log.Fatalf("user table insert failed: %v",err)
 	}
-
 
 	ctx.JSON(iris.Map{
 		"code":0,
