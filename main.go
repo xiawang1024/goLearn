@@ -84,7 +84,6 @@ func addUser(ctx iris.Context) {
 		ctx.StopWithError(iris.StatusBadRequest,err)
 		log.Fatalf("user table insert failed: %v",err)
 	}
-
 	ctx.JSON(iris.Map{
 		"code":0,
 		"message":"success",
