@@ -37,12 +37,20 @@
         <button type="submit" id="submit">提交</button>
 
     </div>
+
+    <div>
+        <input type="text" name="getName">
+        <button id="get">获取</button>
+    </div>
     <script src="public/js/axios.min.js"></script>
+
     <script>
+        axios.defaults.withCredentials = true
+        axios.defaults.headers.common['Authorization'] = 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6Indhbmd4aWEiLCJhdWQiOlsieGl3YW5nMTAyNCIsImd5eSJdLCJleHAiOjE2MDUyNjA4NTQsImlhdCI6MTYwNTI1OTk1NCwiaXNzIjoieGlhd2FuZzEwMjQuY29tIn0.dzutty-qD43UunsDwdmA4GlxhBHqgE5ZFL_FIe_Z3Hs';
         document.getElementById("submit").addEventListener("click", () => {
             axios({
                 method: "POST",
-                url: "http://localhost:8080/user",
+                url: "https://localhost/user",
                 data: {
                     name: document.querySelector("input[name='name']").value,
                     age: parseInt(document.querySelector("input[name='age']").value),
@@ -55,6 +63,15 @@
                 if(code === 0) {
                     window.alert(message)
                 }
+            })
+        })
+        document.getElementById("get").addEventListener("click",() => {
+            let name = document.querySelector("input[name='getName']").value
+            axios({
+                method: "GET",
+                url: `https://localhost/user/${name}`,
+            }).then(res => {
+                console.log(res)
             })
         })
     </script>
