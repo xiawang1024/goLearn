@@ -1,7 +1,6 @@
 Now listening on: https://localhost:443
 Application started. Press CTRL+C to shut down.
-[HTTP Server] http: TLS handshake error from [::1]:55631: remote error: tls: unknown certificate
-[INFO] 2020/11/13 17:35 200 988.9µs ::1 GET /public
-[INFO] 2020/11/13 17:35 200 988.9µs ::1 GET /public/js/axios.min.js
-[WARN] 2020/11/13 17:35 404   0s ::1 GET /public/js/axios.min.map
-[INFO] 2020/11/13 17:35 200 2.9975ms ::1 GET /user/王侠
+[HTTP Server] http: TLS handshake error from [::1]:50605: remote error: tls: unknown certificate
+[INFO] 2020/11/17 17:43 {0 泰宏建业国际城16号院 100 男 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC {郑州市 人和路街道}}
+[INFO] 2020/11/17 17:43 User: models.User{Id:0, Name:"泰宏建业国际城16号院", Age:100, Sex:"男", Created:time.Time{wall:0x0, ext:0, loc:(*time.Location)(nil)}, Updated:time.Time{wall:0x0, ext:0, loc:(*time.Location)(nil)}, CityInfo:models.CityInfo{City:"郑州市", Street:"人和路街道"}}
+[INFO] 2020/11/17 17:43 200 15.9995ms ::1 POST /user

@@ -5,10 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .g-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .g-hd .auth {
+            width: 90px;
+            height: 40px;
+        }
+
+        .g-mn {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .g-mn .form {
+            margin-right: 50px;
+        }
+    </style>
 </head>
 
 <body>
+<header class="g-hd">
+    <h1>iris learn</h1>
+    <button class="auth">授权</button>
+</header>
+<main class="g-mn">
     <div class="form">
+        <h2 class="title">增加人员信息</h2>
         <p class="param">
             <label for="name">姓名</label>
             <input type="text" name="name">
@@ -39,42 +67,72 @@
     </div>
 
     <div>
+        <h2 class="title">查询人员信息</h2>
         <input type="text" name="getName">
-        <button id="get">获取</button>
+        <button id="get">查询</button>
     </div>
-    <script src="public/js/axios.min.js"></script>
+</main>
+<dialog id="myDialog">
+    <p class="tips">挺好玩的</p>
+</dialog>
 
-    <script>
-        axios.defaults.withCredentials = true
-        axios.defaults.headers.common['Authorization'] = 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6Indhbmd4aWEiLCJhdWQiOlsieGl3YW5nMTAyNCIsImd5eSJdLCJleHAiOjE2MDUyNjA4NTQsImlhdCI6MTYwNTI1OTk1NCwiaXNzIjoieGlhd2FuZzEwMjQuY29tIn0.dzutty-qD43UunsDwdmA4GlxhBHqgE5ZFL_FIe_Z3Hs';
-        document.getElementById("submit").addEventListener("click", () => {
-            axios({
-                method: "POST",
-                url: "https://localhost/user",
-                data: {
-                    name: document.querySelector("input[name='name']").value,
-                    age: parseInt(document.querySelector("input[name='age']").value),
-                    sex: document.querySelector("select[name='sex']").value,
-                    city: document.querySelector("input[name='city']").value,
-                    street: document.querySelector("input[name='street']").value
-                }
-            }).then(res => {
-                let {code,message} = res.data
-                if(code === 0) {
-                    window.alert(message)
-                }
-            })
+<script src="public/js/axios.min.js"></script>
+
+<script>
+
+    axios.defaults.withCredentials = true
+    document.getElementById("submit").addEventListener("click", () => {
+        axios({
+            method: "POST",
+            url: "https://localhost/user?from=pc",
+            data: {
+                name: document.querySelector("input[name='name']").value,
+                age: parseInt(document.querySelector("input[name='age']").value),
+                sex: document.querySelector("select[name='sex']").value,
+                city: document.querySelector("input[name='city']").value,
+                street: document.querySelector("input[name='street']").value
+            },
+            headers: {
+                "Authorization": `bearer ${window.localStorage.getItem('irisToken')}`
+            }
+        }).then(res => {
+            let { code, message } = res.data
+            if (code === 0) {
+                window.alert(message)
+            }
         })
-        document.getElementById("get").addEventListener("click",() => {
-            let name = document.querySelector("input[name='getName']").value
-            axios({
-                method: "GET",
-                url: `https://localhost/user/${name}`,
-            }).then(res => {
-                console.log(res)
-            })
+    })
+    document.getElementById("get").addEventListener("click", () => {
+        let name = document.querySelector("input[name='getName']").value
+        axios({
+            method: "GET",
+            url: `https://localhost/user/${name}`,
+            headers: {
+                "Authorization": `bearer ${window.localStorage.getItem('irisToken')}`
+            }
+        }).then(res => {
+            console.log(res)
         })
-    </script>
+    })
+
+
+    document.querySelector('.auth').addEventListener("click", () => {
+        axios({
+            method: "GET",
+            url: "https://localhost/auth",
+        }).then(res => {
+            let { code, token } = res.data
+            if (code === 0) {
+                window.localStorage.setItem("irisToken", token)
+                document.querySelector(".tips").innerHTML = '授权成功'
+                document.querySelector("#myDialog").show()
+                setTimeout(() => {
+                    document.querySelector("#myDialog").close()
+                }, 1500)
+            }
+        })
+    })
+</script>
 </body>
 
 </html>
