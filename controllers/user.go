@@ -22,6 +22,8 @@ type User = models.User
 
 var err error
 
+
+
 func AddUser(ctx iris.Context) {
 	var user User
 	session := sessions.Get(ctx)

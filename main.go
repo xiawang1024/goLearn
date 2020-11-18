@@ -4,54 +4,44 @@ import (
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/middleware/jwt"
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
 	"github.com/kataras/iris/v12/sessions"
 	"github.com/rs/cors"
 	"myapp/controllers"
 	_ "myapp/db"
+	"myapp/middleware"
 	"os"
 	"regexp"
 	"time"
 )
-
-
-
-type UserClaims struct {
-	jwt.Claims
-	Username string
-}
-
-
-var err error
-var j *jwt.JWT
 
 const cookieNameForSessionID = "session_id_cookie"
 
 func main() {
 	app:=iris.New()
 
+	//跨域设置
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		// Enable Debugging for testing, consider disabling in production
 		Debug: true,
 	})
-
-	j=jwt.HMAC(15*time.Minute,"secret")
-
 	app.WrapRouter(c.ServeHTTP)
+
+	//日志
 	f,_:=os.Create("iris.log")
 	app.Logger().SetOutput(f)
-
 	app.UseRouter(logger.New())
 	app.UseRouter(recover.New())
+
+	//设置session
 	sess := sessions.New(sessions.Config{Cookie: cookieNameForSessionID, AllowReclaim: true,Expires: 15 * time.Minute})
 	app.Use(sess.Handler())
-	app.Use(iris.Cache(15*time.Second))
+	app.Use(iris.Cache(60*time.Second))
 
-
+	//挂载静态资源
 	app.HandleDir("/public",iris.Dir("./public"),iris.DirOptions{
 		IndexName: "index.html",
 		PushTargetsRegexp: map[string]*regexp.Regexp{
@@ -65,9 +55,13 @@ func main() {
 		},
 	})
 
+
+	//数据绑定及验证
 	app.Validator = validator.New()
 
-	user:=app.Party("/user",jwtMiddle)
+	app.Get("/auth", controllers.LogIn)
+
+	user:=app.Party("/user",middleware.JwtAuth)
 	{
 		user.Get("/{name}", controllers.GetUser)
 
@@ -78,20 +72,6 @@ func main() {
 
 	}
 
-	app.Get("/auth", func(ctx iris.Context) {
-		standardClaims := jwt.Claims{Issuer: "xiawang1024.com",Audience:jwt.Audience{"xiwang1024","gyy"}}
-		customClaims := UserClaims{
-			Claims:   j.Expiry(standardClaims),
-			Username: "wangxia",
-		}
-
-		//j.WriteToken(ctx, customClaims)
-		token ,_:= j.Token(customClaims)
-		ctx.JSON(iris.Map{
-			"code":0,
-			"token":token,
-		})
-	})
 
 	cacheTest := app.Party("/cache")
 	{
@@ -110,13 +90,5 @@ func main() {
 	app.Run(iris.TLS(":443","mycert.crt","mykey.key"))
 }
 
-func jwtMiddle(ctx iris.Context)  {
-	var claims UserClaims
-	err = j.VerifyToken(ctx,&claims)
-	if err != nil {
-		ctx.StopWithStatus(iris.StatusUnauthorized)
-		//ctx.StopWithError(iris.StatusUnauthorized,err)
-	}
-	ctx.Next()
-}
+
 
